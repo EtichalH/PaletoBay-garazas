@@ -227,7 +227,6 @@
         ];
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Load saved prices or use defaults
             const savedPrices = localStorage.getItem('mechanicPrices');
             if (savedPrices) {
                 priceData.forEach(category => {
@@ -244,8 +243,6 @@
             }
 
             renderPriceList();
-
-            // Dark mode toggle
             const darkModeToggle = document.getElementById('toggleDarkMode');
             const body = document.body;
             
@@ -273,7 +270,6 @@
                 showAlert('Kainos sėkmingai išsaugotos!', 'success');
             });
 
-            // Reset prices
             document.getElementById('resetPrices').addEventListener('click', function() {
                 if (confirm('Ar tikrai norite atstatyti numatytąsias kainas?')) {
                     localStorage.removeItem('mechanicPrices');
@@ -317,8 +313,7 @@
                 `;
                 container.insertAdjacentHTML('beforeend', categoryHTML);
             });
-
-            // Add event listeners to editable prices
+            
             document.querySelectorAll('.editable-price').forEach(element => {
                 element.addEventListener('blur', function() {
                     const category = this.dataset.category;
@@ -336,7 +331,6 @@
                     }
                 });
                 
-                // Prevent line breaks in editable fields
                 element.addEventListener('keydown', function(e) {
                     if (e.key === 'Enter') {
                         e.preventDefault();
