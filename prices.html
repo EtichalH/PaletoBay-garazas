@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paleto Garazo Kainoraštis</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .price-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            border: none;
+            margin-bottom: 20px;
+            height: 100%;
+        }
+        
+        .card-header {
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: 600;
+        }
+        
+        .price-item {
+            transition: all 0.2s ease;
+            padding: 8px 0;
+        }
+        
+        .price-item:hover {
+            background-color: rgba(52, 152, 219, 0.05);
+            transform: translateX(5px);
+        }
+        
+        .editable-price {
+            cursor: pointer;
+            border-bottom: 1px dashed #3498db;
+            min-width: 80px;
+            display: inline-block;
+        }
+        
+        .editable-price:focus {
+            outline: none;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .category-header {
+            background-color: rgba(44, 62, 80, 0.1);
+            font-weight: 600;
+            padding: 8px 15px;
+            border-radius: 5px;
+            margin: 0 0 10px 0;
+        }
+        
+        .badge-category {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .invoice-badge {
+            background-color: #28a745;
+            font-size: 0.7rem;
+            margin-left: 5px;
+        }
+        
+        .note-text {
+            font-size: 0.8rem;
+            color: #6c757d;
+            display: block;
+            margin-top: 2px;
+        }
+        
+        .dark-mode .price-card {
+            background-color: #2d2d2d;
+            color: #f0f0f0;
+        }
+        
+        .dark-mode .card-header {
+            background-color: #1a1a1a !important;
+        }
+        
+        .dark-mode .note-text {
+            color: #adb5bd;
+        }
+        
+        .price-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .price-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="bi bi-tags"></i> Kainoraštis</h1>
+            <button id="toggleDarkMode" class="btn btn-outline-secondary">
+                <i class="bi bi-moon-fill"></i>
+            </button>
+        </div>
+        
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-tools me-2"></i>Detalių ir paslaugų kainos</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> Spausk ant kainos norėdamas-(a) ją pakeisti. Jei to nesugebi tai tu tiesiog esi <b>Benkartas</b>
+                </div>
+                
+                <div class="price-grid" id="priceCategories">
+                    <!-- Kategorijos -->
+                </div>
+                
+                <div class="d-flex justify-content-between mt-4">
+                    <button id="savePrices" class="btn btn-success">
+                        <i class="bi bi-save"></i> Išsaugoti kainas
+                    </button>
+                    <button id="resetPrices" class="btn btn-outline-danger">
+                        <i class="bi bi-arrow-counterclockwise"></i> Atstatyti numatytąsias
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const priceData = [
+            {
+                category: "Detalės",
+                items: [
+                    { name: "Mikropluošto valymo šluostė", price: 140, invoice: true },
+                    { name: "Magnetola Mėlyna geresnė", price: 35000, invoice: true },
+                    { name: "Magnetolos paprasta", price: 30000, invoice: true },
+                    { name: "Gaminimo įrankis", price: 5000, invoice: true },
+                    { name: "Lockpikai automobiliui", price: 3000, invoice: true },
+                    { name: "Lockpikai namui", price: 3000, invoice: true },
+                    { name: "Gesintuvas", price: 5000, invoice: true },
+                    { name: "Antifryzas", price: 70, invoice: true },
+                    { name: "Vilkiko virvė", price: 450, invoice: true },
+                    { name: "Traliuko diržas", price: 900, invoice: true },
+                    { name: "Traliuko rampa", price: 1300, invoice: true },
+                    { name: "Plaktuko kaina", price: 500, invoice: true },
+                    { name: "Tuščias kuro kanistras", price: 50, invoice: true }
+                ]
+            },
+            {
+                category: "Remonto darbai",
+                items: [
+                    { name: "Garaže", price: 1000, note: "Nuo 1000€ (priklauso nuo mašinos būklės)", invoice: true }
+                ]
+            },
+            {
+                category: "Taisymas važiuojant",
+                items: [
+                    { name: "Paleto Bay", price: 2000, invoice: true },
+                    { name: "Sandy Shores", price: 4000, invoice: true },
+                    { name: "Grapeseed", price: 3000, invoice: true },
+                    { name: "LS", price: 0, note: "NEVAŽIUOJAM", invoice: false }
+                ]
+            },
+            {
+                category: "Rinkinių pardavimas",
+                items: [
+                    { name: "1 vnt.", price: 1000, invoice: true },
+                    { name: "10 vnt.", price: 10000, invoice: true },
+                    { name: "50 vnt.", price: 50000, invoice: true },
+                    { name: "100 vnt.", price: 100000, invoice: true },
+                    { name: "500 vnt.", price: 500000, invoice: true },
+                    { name: "1000 vnt.", price: 1000000, invoice: true },
+                    { name: "Performance", price: 18000, invoice: true },
+                    { name: "Kosmetika", price: 2000, invoice: true },
+                    { name: "Ratai", price: 2000, invoice: true },
+                    { name: "Dažymas", price: 4000, invoice: true },
+                    { name: "Extras", price: 600, invoice: true },
+                    { name: "Šviesų valdiklis", price: 3000, invoice: true },
+                    { name: "Padangų dūmai", price: 1500, invoice: true }
+                ]
+            },
+            {
+                category: "Nitro paslaugos",
+                items: [
+                    { name: "Įstatymas 1 baliono", price: 15000, invoice: true },
+                    { name: "Papildymas 1 baliono", price: 3000, invoice: true }
+                ]
+            },
+            {
+                category: "Detalių pirkimas",
+                items: [
+                    { name: "Durys", price: 300, invoice: false },
+                    { name: "Ratas", price: 1000, invoice: false },
+                    { name: "Akumuliatorius", price: 600, invoice: false },
+                    { name: "Pavarų dėžė", price: 4000, invoice: false },
+                    { name: "Radiatorius", price: 600, invoice: false },
+                    { name: "Metalo laužas", price: 2000, invoice: false },
+                    { name: "Kapotas", price: 800, invoice: false },
+                    { name: "Bagažinė", price: 600, invoice: false }
+                ]
+            },
+            {
+                category: "Kitos paslaugos",
+                items: [
+                    { name: "Tech. Apžiūra", price: 5000, invoice: true },
+                    { name: "V12 Variklis", price: 75000, invoice: true }
+                ]
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved prices or use defaults
+            const savedPrices = localStorage.getItem('mechanicPrices');
+            if (savedPrices) {
+                priceData.forEach(category => {
+                    const savedCategory = JSON.parse(savedPrices).find(c => c.category === category.category);
+                    if (savedCategory) {
+                        category.items.forEach(item => {
+                            const savedItem = savedCategory.items.find(i => i.name === item.name);
+                            if (savedItem) {
+                                item.price = savedItem.price;
+                            }
+                        });
+                    }
+                });
+            }
+
+            renderPriceList();
+
+            // Dark mode toggle
+            const darkModeToggle = document.getElementById('toggleDarkMode');
+            const body = document.body;
+            
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                body.classList.add('dark-mode');
+                darkModeToggle.innerHTML = '<i class="bi bi-sun-fill"></i>';
+            }
+            
+            darkModeToggle.addEventListener('click', function() {
+                body.classList.toggle('dark-mode');
+                const isDarkMode = body.classList.contains('dark-mode');
+                
+                if (isDarkMode) {
+                    darkModeToggle.innerHTML = '<i class="bi bi-sun-fill"></i>';
+                    localStorage.setItem('darkMode', 'enabled');
+                } else {
+                    darkModeToggle.innerHTML = '<i class="bi bi-moon-fill"></i>';
+                    localStorage.setItem('darkMode', 'disabled');
+                }
+            });
+
+            // Save prices
+            document.getElementById('savePrices').addEventListener('click', function() {
+                localStorage.setItem('mechanicPrices', JSON.stringify(priceData));
+                showAlert('Kainos sėkmingai išsaugotos!', 'success');
+            });
+
+            // Reset prices
+            document.getElementById('resetPrices').addEventListener('click', function() {
+                if (confirm('Ar tikrai norite atstatyti numatytąsias kainas?')) {
+                    localStorage.removeItem('mechanicPrices');
+                    location.reload();
+                }
+            });
+        });
+
+        function renderPriceList() {
+            const container = document.getElementById('priceCategories');
+            container.innerHTML = '';
+
+            priceData.forEach(category => {
+                const categoryHTML = `
+                    <div class="price-card">
+                        <div class="card-header bg-secondary text-white">
+                            <h6 class="mb-0">${category.category}</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="price-list">
+                                ${category.items.map(item => `
+                                    <div class="price-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <span><b>${item.name}</b></span>
+                                            ${item.note ? `<span class="note-text">${item.note}</span>` : ''}
+                                        </div>
+                                        <div>
+                                            <span class="editable-price" 
+                                                  contenteditable="true" 
+                                                  data-category="${category.category}" 
+                                                  data-item="${item.name}">
+                                                ${formatPrice(item.price)}
+                                            </span>
+                                            ${item.invoice ? '<span class="badge invoice-badge">sąskaita</span>' : ''}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', categoryHTML);
+            });
+
+            // Add event listeners to editable prices
+            document.querySelectorAll('.editable-price').forEach(element => {
+                element.addEventListener('blur', function() {
+                    const category = this.dataset.category;
+                    const itemName = this.dataset.item;
+                    const newPrice = parsePrice(this.textContent);
+                    
+                    // Find and update the price in our data structure
+                    const categoryObj = priceData.find(c => c.category === category);
+                    if (categoryObj) {
+                        const item = categoryObj.items.find(i => i.name === itemName);
+                        if (item) {
+                            item.price = newPrice;
+                            this.textContent = formatPrice(newPrice);
+                        }
+                    }
+                });
+                
+                // Prevent line breaks in editable fields
+                element.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.blur();
+                    }
+                });
+            });
+        }
+
+        function formatPrice(price) {
+            if (price >= 1000) {
+                return `${(price/1000).toFixed(0)}K`;
+            }
+            return `${price}€`;
+        }
+
+        function parsePrice(priceStr) {
+            if (priceStr.includes('K')) {
+                return parseFloat(priceStr.replace('K', '')) * 1000;
+            }
+            return parseFloat(priceStr.replace('€', '').replace(/,/g, ''));
+        }
+
+        function showAlert(message, type) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-dismissible fade show position-fixed top-0 end-0 m-3`;
+            alert.style.zIndex = '1000';
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            document.body.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

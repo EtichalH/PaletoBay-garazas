@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="lt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paleto mechanikų algų apskaičiavimai</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css">
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --dark-bg: #343a40;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            border: none;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: 600;
+        }
+
+        .rate-config {
+            background-color: var(--light-bg);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .table-container {
+            max-height: 600px;
+            overflow-y: auto;
+            border-radius: 10px;
+        }
+
+        .total-row {
+            font-weight: bold;
+            background-color: rgba(52, 152, 219, 0.1) !important;
+        }
+
+        .editable-rate {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+        }
+
+        .editable-rate:focus {
+            box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
+            border-color: var(--secondary-color);
+        }
+
+        .input-group-text {
+
+            justify-content: center;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            border: none;
+            padding: 10px 20px;
+            font-weight: 600;
+        }
+
+        .btn-outline-secondary {
+            border-color: var(--secondary-color);
+            color: var(--secondary-color);
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: #27ae60;
+            border: none;
+        }
+
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .highlight-row {
+            animation: highlight 2s ease-out;
+        }
+
+        @keyframes highlight {
+            0% {
+                background-color: rgba(231, 76, 60, 0.3);
+            }
+
+            100% {
+                background-color: transparent;
+            }
+        }
+
+        .salary-badge {
+            font-size: 0.9rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .progress-thin {
+            height: 5px;
+        }
+
+        .nav-tabs .nav-link.active {
+            font-weight: bold;
+            border-bottom: 3px solid var(--secondary-color);
+        }
+
+        .stat-card {
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .logo-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-header img {
+            height: 60px;
+            margin-right: 15px;
+        }
+
+        .logo-header h1 {
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .dark-mode {
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+        }
+
+        .dark-mode .card {
+            background-color: #2d2d2d;
+            color: #f0f0f0;
+        }
+
+        .dark-mode .card-header {
+            background-color: #1a1a1a !important;
+        }
+
+        .dark-mode .table {
+            color: #f0f0f0;
+        }
+
+        .dark-mode .table-light {
+            background-color: #2d2d2d !important;
+        }
+
+        .dark-mode .input-group-text {
+            background-color: #1a1a1a;
+        }
+
+        .dark-mode .form-control {
+            background-color: #2d2d2d;
+            color: #f0f0f0;
+            border-color: #444;
+        }
+
+        .raffle-roller {
+            height: 100px;
+            position: relative;
+            margin: 60px auto 30px auto;
+            width: 900px;
+        }
+
+        .raffle-roller-holder {
+            overflow: hidden;
+            border-radius: 2px;
+            border: 1px solid #3c3759;
+            height: 100px;
+            width: 100%;
+            position: relative;
+        }
+
+        .raffle-roller-container {
+            display: flex;
+            height: 100px;
+            background: #191726;
+            margin-left: 0;
+            transition: all 8s cubic-bezier(.08, .6, 0, 1);
+        }
+
+        .raffle-roller-holder:before {
+            content: "";
+            position: absolute;
+            z-index: 10;
+            width: 5px;
+            height: 100%;
+            left: 50%;
+            background: #d16266;
+        }
+
+        .item {
+            display: inline-block;
+            margin: 4px 5px;
+            width: 85px;
+            height: 88px;
+            border: 1px solid #70677c;
+            background: #14202b center/contain no-repeat;
+            color: white;
+            text-align: center;
+            line-height: 88px;
+            font-weight: bold;
+        }
+
+        .winning-item {
+            border: 2px solid #66b233;
+            border-bottom: 4px solid #66b233;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container py-4">
+        <div class="logo-header animate__animated animate__fadeIn">
+            <h1 class="animate__animated animate__fadeIn">Paleto Garazo algu skaiciuotuvas</h1>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6 animate__animated animate__fadeInLeft">
+                <div class="card h-100">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-people-fill me-2"></i>Darbuotojų informacija</h5>
+                        <button id="toggleDarkMode" class="btn btn-sm btn-outline-light">
+                            <i class="bi bi-moon-fill"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-tabs mb-3" id="inputTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="paste-tab" data-bs-toggle="tab"
+                                    data-bs-target="#paste-tab-pane" type="button" role="tab">Įklijuoti</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="manual-tab" data-bs-toggle="tab"
+                                    data-bs-target="#manual-tab-pane" type="button" role="tab">Rankinis
+                                    įvedimas</button>
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="inputTabsContent">
+                            <div class="tab-pane fade show active" id="paste-tab-pane" role="tabpanel" tabindex="0">
+                                <div class="mb-3">
+                                    <label for="employeeData" class="form-label">Įdėkite kopiją iš žaidimo
+                                        (/pradirbta):</label>
+                                    <textarea class="form-control" id="employeeData" rows="8"
+                                        placeholder="Įklijuokite duomenis čia..."></textarea>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="manual-tab-pane" role="tabpanel" tabindex="0">
+                                <div id="manualInputContainer">
+                                    <div class="manual-input-row mb-2">
+                                        <div class="row g-2">
+                                            <div class="col-md-5">
+                                                <input type="text" class="form-control" placeholder="Vardas Pavardė">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <select class="form-select">
+                                                    <option value="">Rangas</option>
+                                                    <option value="Praktikantas">Praktikantas</option>
+                                                    <option value="Kėbulistas">Kėbulistas</option>
+                                                    <option value="Motoristas">Motoristas</option>
+                                                    <option value="Inžinierius">Inžinierius</option>
+                                                    <option value="Elektrikas">Elektrikas</option>
+                                                    <option value="Direktorius">Direktorius</option>
+                                                    <option value="Pavaduotojas">Pavaduotojas</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <input type="text" class="form-control" placeholder="Valandos (Xh Ym)">
+                                            </div>
+                                            <div class="col-md-1">
+                                                <button class="btn btn-outline-danger btn-sm w-100 remove-row-btn"><i
+                                                        class="bi bi-trash"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button id="addManualRow" class="btn btn-sm btn-outline-primary mt-2">
+                                    <i class="bi bi-plus-circle"></i> Pridėti eilutę
+                                </button>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-3">
+                            <button id="processData" class="btn btn-primary">
+                                <i class="bi bi-calculator"></i> Apskaičiuoti algas
+                            </button>
+                            <button id="clearData" class="btn btn-outline-secondary">
+                                <i class="bi bi-trash"></i> Išvalyti
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 animate__animated animate__fadeInRight">
+                <div class="card h-100">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="bi bi-currency-exchange me-2"></i>Valandinių įkainių tvarkymas</h5>
+                    </div>
+                    <div class="card-body rate-config">
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-2">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i
+                                            class="bi bi-person-workspace me-2"></i>Praktikantas</span>
+                                    <input type="number" class="form-control editable-rate" id="rate-Praktikantas"
+                                        value="8000">
+                                    <span class="input-group-text">€</span>
+                                </div>
+                                <div class="progress progress-thin mt-1">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: 25%"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-tools me-2"></i>Kėbulistas</span>
+                                    <input type="number" class="form-control editable-rate" id="rate-Kėbulistas"
+                                        value="9000">
+                                    <span class="input-group-text">€</span>
+                                </div>
+                                <div class="progress progress-thin mt-1">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: 30%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-2">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-car-front me-2"></i>Motoristas</span>
+                                    <input type="number" class="form-control editable-rate" id="rate-Motoristas"
+                                        value="10000">
+                                    <span class="input-group-text">€</span>
+                                </div>
+                                <div class="progress progress-thin mt-1">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: 35%"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i
+                                            class="bi bi-gear-wide me-2"></i>Inžinierius</span>
+                                    <input type="number" class="form-control editable-rate" id="rate-Inžinierius"
+                                        value="13000">
+                                    <span class="input-group-text">€</span>
+                                </div>
+                                <div class="progress progress-thin mt-1">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: 50%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-2">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i
+                                            class="bi bi-lightning-charge me-2"></i>Elektrikas</span>
+                                    <input type="number" class="form-control editable-rate" id="rate-Elektrikas"
+                                        value="11000">
+                                    <span class="input-group-text">€</span>
+                                </div>
+                                <div class="progress progress-thin mt-1">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: 45%"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-award me-2"></i>Direktorius</span>
+                                    <input type="number" class="form-control editable-rate" id="rate-Direktorius"
+                                        value="17000">
+                                    <span class="input-group-text">€</span>
+                                </div>
+                                <div class="progress progress-thin mt-1">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: 70%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i
+                                            class="bi bi-person-badge me-2"></i>Pavaduotojas</span>
+                                    <input type="number" class="form-control editable-rate" id="rate-Pavaduotojas"
+                                        value="15000">
+                                    <span class="input-group-text">€</span>
+                                </div>
+                                <div class="progress progress-thin mt-1">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: 60%"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-question-circle me-2"></i>Kita</span>
+                                    <input type="number" class="form-control editable-rate" id="rate-default"
+                                        value="2000">
+                                    <span class="input-group-text">€</span>
+                                </div>
+                                <div class="progress progress-thin mt-1">
+                                    <div class="progress-bar bg-info" role="progressbar" style="width: 10%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button id="saveRates" class="btn btn-sm btn-success me-2">
+                                <i class="bi bi-save"></i> Išsaugoti įkainius
+                            </button>
+                            <button id="resetRates" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-arrow-counterclockwise"></i> Atstatyti
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4 animate__animated animate__fadeInUp">
+            <div class="col-md-4 mb-3">
+                <div class="card stat-card h-100">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted"><i class="bi bi-people me-2"></i>Darbuotojai</h6>
+                        <h3 class="card-title" id="totalEmployees">0</h3>
+                        <div class="progress progress-thin">
+                            <div class="progress-bar bg-primary" id="employeesProgress" role="progressbar"
+                                style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card stat-card h-100">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted"><i class="bi bi-clock me-2"></i>Viso valandų</h6>
+                        <h3 class="card-title" id="displayTotalHours">0h 0m</h3>
+                        <div class="progress progress-thin">
+                            <div class="progress-bar bg-warning" id="hoursProgress" role="progressbar"
+                                style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card stat-card h-100">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted"><i class="bi bi-cash-coin me-2"></i>Bendra suma</h6>
+                        <h3 class="card-title" id="displayTotalPay">€0</h3>
+                        <div class="progress progress-thin">
+                            <div class="progress-bar bg-success" id="payProgress" role="progressbar" style="width: 0%">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="card my-5">
+            <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-shuffle"></i> Atsitiktinis laimėtojas</h5>
+                <span class="badge bg-dark text-white">10+ val. darbuotojai</span>
+            </div>
+            <div class="card-body text-center">
+                <div class="overflow-hidden border rounded-pill position-relative mx-auto"
+                    style="height: 60px; max-width: 900px;">
+                    <div id="spinnerTrack" class="d-flex align-items-center" style="transition: all 6s ease;">
+                        <!-- Items will be dynamically added here -->
+                    </div>
+                    <div class="position-absolute top-0 bottom-0 start-50 translate-middle-x border-start border-end border-3 border-danger"
+                        style="width: 5px;"></div>
+                </div>
+
+                <div class="mt-3">
+                    <!-- <h5 class="fw-bold">Nugalėtojas: <span class="text-success" id="winnerName">Renkama...</span></h5> -->
+                    <button class="btn btn-outline-primary me-2" onclick="spinRaffle()">
+                        <i class="bi bi-arrow-repeat"></i> Sukti benkartus
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="resetRaffle()">
+                        <i class="bi bi-x-circle"></i> Iš naujo
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="card animate__animated animate__fadeInUp">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-table me-2"></i>Rezultatai</h5>
+                <div>
+                    <button id="exportCSV" class="btn btn-sm btn-outline-light me-2">
+                        <i class="bi bi-file-earmark-excel"></i> CSV
+                    </button>
+                    <button id="hideLessThan10" class="btn btn-sm btn-outline-light me-2">
+                        <i class="bi bi-eye-slash"></i> HIDE
+                    </button>
+                    <button id="bonus50" class="btn btn-sm btn-outline-light me-2">
+                        <i class="bi bi-plus-circle"></i> Bonus 50k
+                    </button>
+                    <button id="bonus20" class="btn btn-sm btn-outline-light me-2">
+                        <i class="bi bi-plus-circle"></i> Bonus 20k
+                    </button>
+                    <button id="exportPDF" class="btn btn-sm btn-outline-light">
+                        <i class="bi bi-file-earmark-pdf"></i> PDF
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-container">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead class="table-light sticky-header">
+                            <tr>
+                                <th width="5%">#</th>
+                                <th width="20%">Pilnas vardas</th>
+                                <th width="15%">Rangas</th>
+                                <th width="12%">Valandos</th>
+                                <th width="12%">Valandinis</th>
+                                <th width="20%">Alga</th>
+                                <th width="16%">Paaukštinimas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsTable">
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">Įveskite duomenis ir spauskite
+                                    "Apskaičiuoti algas"</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr class="total-row">
+                                <td colspan="3"><strong>Iš viso:</strong></td>
+                                <td id="totalHours">0h 0m</td>
+                                <td></td>
+                                <td id="totalPay">$0</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="card mt-4 animate__animated animate__fadeIn">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-calculator me-2"></i>Detalių skaičiuoklė</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Detalė</th>
+                                    <th>Kaina</th>
+                                    <th>Kiekis</th>
+                                    <th>Suma</th>
+                                </tr>
+                            </thead>
+                            <tbody id="partsTable">
+
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-active">
+                                    <td colspan="3" class="text-end"><strong>Bendra suma:</strong></td>
+                                    <td id="partsTotal">€0</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="d-flex justify-content-between mb-3">
+                            <div class="btn-group">
+                                <button id="resetParts" class="btn btn-outline-danger">
+                                    <i class="bi bi-trash"></i> Išvalyti
+                                </button>
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn btn-outline-primary percentage-btn" data-percent="50">50%</button>
+                                <button class="btn btn-outline-primary percentage-btn" data-percent="60">60%</button>
+                                <button class="btn btn-outline-primary percentage-btn" data-percent="70">70%</button>
+                                <button class="btn btn-outline-primary percentage-btn" data-percent="80">80%</button>
+                                <button class="btn btn-outline-primary percentage-btn" data-percent="100">100%</button>
+                            </div>
+                            <div>
+                                <button id="kalpokasBtn" class="btn btn-outline-success">
+                                    <i class="bi bi-currency-exchange"></i> Kalpokas
+                                </button>
+                            </div>
+                        </div>
+                        <div class="alert alert-info mb-3">
+                            <i class="bi bi-info-circle"></i> Spustelėkite ant kiekio, norėdami pakeisti. Pasirinkite
+                            nuolaidą procentais.
+                        </div>
+                        <div id="discountInfo" class="alert alert-warning d-none">
+                            Taikoma <strong><span id="discountPercent">0</span>%</strong> nuolaida.
+                            Bendra suma: <strong>€<span id="discountedTotal">0</span></strong>
+                            <button id="removeDiscount" class="btn btn-sm btn-outline-danger ms-2">Pašalinti</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="card mt-4 animate__animated animate__fadeIn">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="bi bi-box-seam me-2"></i>Medžiagų skaičiuoklė</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Medžiaga</th>
+                                    <th>Kaina</th>
+                                    <th>Kiekis</th>
+                                    <th>Suma</th>
+                                </tr>
+                            </thead>
+                            <tbody id="materialsTable">
+
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-active">
+                                    <td colspan="3" class="text-end"><strong>Bendra suma:</strong></td>
+                                    <td id="materialsTotal">€0</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex flex-column gap-2">
+                            <div class="btn-group">
+                                <button class="btn btn-outline-primary markup-btn" data-percent="5">+5%</button>
+                                <button class="btn btn-outline-primary markup-btn" data-percent="10">+10%</button>
+                            </div>
+                            <div class="btn-group">
+                                <button class="btn btn-outline-primary markup-btn" data-percent="20">+20%</button>
+                                <button class="btn btn-outline-primary markup-btn" data-percent="25">+25%</button>
+                            </div>
+                            <div class="alert alert-info mb-3">
+                                <i class="bi bi-info-circle"></i> Pasirinkite procenta jog duotumet daugiau.
+                            </div>
+                            <button id="resetMaterials" class="btn btn-outline-danger mt-2">
+                                <i class="bi bi-trash"></i> Išvalyti
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+        <div class="card mt-4 animate__animated animate__fadeIn">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Darbuotojų įspėjimai</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-8">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                            <select class="form-select" id="warningEmployeeSelect">
+                                <option value="" selected disabled>Pasirink darbuotoją</option>
+                            </select>
+                            <input type="text" class="form-control" id="warningReason"
+                                placeholder="Įspėjimo priežastis">
+                            <button class="btn btn-outline-danger" id="addWarningBtn">
+                                <i class="bi bi-plus-circle"></i> Pridėti įspėjimą
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <button class="btn btn-outline-secondary" id="refreshWarningsBtn">
+                            <i class="bi bi-arrow-repeat"></i> Atnaujinti sąrašą
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-warning">
+                            <tr>
+                                <th>#</th>
+                                <th>Darbuotojas</th>
+                                <th>Įspėjimai</th>
+                                <th>Paskutinis įspėjimas</th>
+                                <th>Priežastis</th>
+                                <th>Veiksmai</th>
+                            </tr>
+                        </thead>
+                        <tbody id="warningsTable">
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">Įrašų nėra</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <div class="card mt-4 animate__animated animate__fadeIn">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-graph-up me-2"></i>Statistika</h5>
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-tabs mb-3" id="statsTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="weekly-tab" data-bs-toggle="tab"
+                            data-bs-target="#weekly-tab-pane" type="button" role="tab">Savaitės ataskaita</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="workers-tab" data-bs-toggle="tab"
+                            data-bs-target="#workers-tab-pane" type="button" role="tab">Darbuotojų statistika</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="warnings-tab" data-bs-toggle="tab"
+                            data-bs-target="#warnings-tab-pane" type="button" role="tab">Įspėjimų statistika</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="statsTabsContent">
+                    <div class="tab-pane fade show active" id="weekly-tab-pane" role="tabpanel" tabindex="0">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Savaitė</th>
+                                        <th>Darbuotojų sk.</th>
+                                        <th>Viso valandų</th>
+                                        <th>Viso išmokėta</th>
+                                        <th>Veiksmai</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="weeklyStatsTable">
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-4">Įkeliama statistika...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="workers-tab-pane" role="tabpanel" tabindex="0">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Darbuotojas</th>
+                                        <th>Viso valandų</th>
+                                        <th>Viso išmokėta</th>
+                                        <th>Savaičių sk.</th>
+                                        <th>Vid. val./sav.</th>
+                                        <th>Vid. alga/sav.</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="workersStatsTable">
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted py-4">Įkeliama statistika...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="warnings-tab-pane" role="tabpanel" tabindex="0">
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Darbuotojas</th>
+                                        <th>Viso įspėjimų</th>
+                                        <th>Pirmas įspėjimas</th>
+                                        <th>Paskutinis įspėjimas</th>
+                                        <th>Veiksmai</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="warningsStatsTable">
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-4">Įkeliama statistika...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3 text-end">
+                    <button id="exportStatsBtn" class="btn btn-outline-primary me-2">
+                        <i class="bi bi-file-earmark-excel"></i> Eksportuoti statistiką
+                    </button>
+                    <button id="resetStatsBtn" class="btn btn-outline-danger">
+                        <i class="bi bi-trash"></i> Išvalyti statistiką
+                    </button>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <div class="mt-4 text-center text-muted small animate__animated animate__fadeIn">
+            <p>Mech Skaiciuotuvas v2.0 | &copy; 2025 Sidestory.lt | A25</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="main.js"></script>
+    <script src="regular-cal.js"></script>
+    <script src="materials.js"></script>
+    <script src="warnings.js"></script>
+    <script src="stats.js"></script>
+</body>
+
+</html>
