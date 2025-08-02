@@ -156,11 +156,13 @@ const leaderboardData = [
   { name: "Darell Kavaliauskas", amount: 21 },
   { name: "Mindoza Brazukas", amount: 13 },
   { name: "Vidmantas Paškevičius", amount: 6 },
-  { name: "Kazys Vaskas", amount: 3 },
-  { name: "Petras Jankauskas", amount: 2 },
+  { name: "Kazys Vaskas", amount: 6 },
+  { name: "Richanna Montana", amount: 4 },
+  { name: "Petras Jankauskas", amount: 3 },
+  { name: "Hugo Ramirez", amount: 3 },
+  { name: "Greta Jolie", amount: 2 },
   { name: "Erniuha Kazlinis", amount: 1 },
-  { name: "Greta Jolie", amount: 1 }
-  
+  { name: "Markas Garsia", amount: 1 }
 ];
 
 const levelThresholds = [
@@ -327,5 +329,6 @@ leaderboardStyles.textContent = `
 }
 `;
 document.head.appendChild(leaderboardStyles);
+
 
 });
